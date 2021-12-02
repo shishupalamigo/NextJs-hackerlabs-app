@@ -2,11 +2,19 @@ import { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import Hero from '../components/ui/Hero';
 import Team from '../components/ui/Team';
-import { data } from '../data/data';
 
 export const getStaticProps = async () => {
+  const res = await fetch(`http://localhost:3000/api/data`)
+  const data = await res.json()
+
+  if (!data) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
-    props: { devInfo: data },
+    props: { devInfo: data.userInfo },
   };
 };
 
@@ -17,17 +25,10 @@ function HomePage({ devInfo }) {
   const handleSearch = (event) => {
     const value = event.target.value.toLowerCase();
     setFilteredData(
-      devInfo.filter((dev) => dev.name.toLowerCase().includes(value))
+      devInfo.filter((dev) => dev.name.toLowerCase().includes(value) || dev.techstack.some((tech) => tech.toLowerCase().includes(value)))  
     );
-    if (filteredData.length === 0) {
-      setFilteredData(
-        devInfo.filter((dev) =>
-          dev.techstack.some((tech) => tech.toLowerCase().includes(value))
-        )
-      );
-    }
   };
-
+  // console.log(devInfo, "from homepage");
   return (
     <Layout>
       <Hero />
